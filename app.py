@@ -7,13 +7,17 @@ app = Flask(__name__)
 bootstrap = Bootstrap(app)
 
 #----- Controllers -----#
-@app.route('/index')
-def index():
-    return render_template('pages/index.html')
-
 @app.route('/')
 def home():
-    return render_template('pages/placeholder.home.html')
+    return render_template('pages/home.html')
+
+@app.route('/login')
+def login():
+    return render_template('pages/login.html')
+
+@app.route('/profile')
+def profile():
+    return render_template('pages/view-profile.html')
 
 #----- Launch -----#
 if __name__ == '__main__':

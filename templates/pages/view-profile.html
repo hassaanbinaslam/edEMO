@@ -1,0 +1,25 @@
+{% extends 'layouts/base.html' %}
+{% block title %}View Profile{% endblock %}
+{% block head %}
+{{ super() }}
+<link href="static/css/profile.css" rel="stylesheet" type="text/css"/>
+{% endblock %}
+{% block content %}
+
+<div class="container">
+    <center>
+        <img src="static/img/150px-image-placeholder.png"
+             name="aboutme" width="150" height="150" border="0" class="img-circle"></a>
+        <h2 class="media-heading">User Name Here</h2>
+        <h3 class="media-heading">Email Address Here</h3>
+    </center>
+    <hr>
+    <center>
+        <p class="text-left"><strong>Bio: </strong><br>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sem dui, tempor sit amet commodo a, vulputate
+            vel tellus.</p>
+        <br>
+    </center>
+</div>
+
+{% endblock %}
