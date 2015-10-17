@@ -8,8 +8,8 @@ Base = declarative_base()
 class UserRole(Base, ):
     __tablename__ = 'user_role'
 
-    id = Column(Integer, primary_key=true)
-    name = Column(String(255), unique=true, nullable=false)
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), unique=True, nullable=False)
 
     def __init__(self, id, name):
         self.id = id
@@ -20,10 +20,10 @@ class User(Base):
     """ User of the application """
     __tablename__ = 'user'
 
-    id = Column(Integer, primary_key=true, autoincrement=true)
-    email = Column(String(255), unique=True, nullable=false)
-    name = Column(String(255), nullable=false)
-    bio = Column(Text, nullable=true)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    email = Column(String(255), unique=True, nullable=False)
+    name = Column(String(255), nullable=False)
+    bio = Column(Text, nullable=True)
     role_id = Column(Integer, ForeignKey('user_role.id'))
 
     def __init__(self, email=None, name=None, bio=None, role_id=None):
