@@ -18,9 +18,11 @@ app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 db.Model = Base
 db.create_all()
-db.session.query(UserRole).delete()
-db.session.query(User).delete()
-db.session.query(SurveyGroup).delete()
+# db.session.query(UserRole).delete()
+# db.session.query(User).delete()
+# db.session.query(SurveyGroup).delete()
+# db.session.query(SurveyGroupMember).delete()
+# db.session.query(Survey).delete()
 if db.session.query(UserRole).count() == 0:
     db.session.add(UserRole(1, "SYSTEM_ADMIN"))
     db.session.add(UserRole(2, "SURVEY_ADMIN"))
@@ -35,6 +37,13 @@ if db.session.query(User).count() == 0:
 if db.session.query(SurveyGroup).count() == 0:
     db.session.add(SurveyGroup("CS6460", "EdTech", 2))
     db.session.commit()
+if db.session.query(SurveyGroupMember).count() == 0:
+    db.session.add(SurveyGroupMember(1, 3))
+    db.session.add(SurveyGroupMember(1, 3))
+    db.session.commit()
+if db.session.query(Survey).count() == 0:
+    db.session.add(Survey("First Survey", "Hello World?", datetime.date.today(),
+                          datetime.date.today() + datetime.timedelta(days=1)), 2, 1)
 
 # ----- Controllers -----#
 @app.route('/')
@@ -158,6 +167,19 @@ def survey_list():
     current_user_id = 2  # Temporary. Needs to be fixed
     survey_list = db.session.query(Survey).filter(Survey.creator_id == current_user_id)
     return render_template('pages/survey-list.html', survey_list=survey_list)
+
+
+@app.route('/survey/<int:survey_id>', methods=['GET', 'POST'])
+def survey(survey_id):
+    """ Provide HTML form to create new survey """
+    current_user_id = 2  # Temporary. Needs to be fixed
+    form = SurveyForm(request.form)
+    if request.method == 'POST' and form.validate():
+        print "Success"
+        # Success. Redirect user to full survey group list.
+        return redirect(url_for('home'))
+    # Load the page. If page was submitted and contain errors then load it with errors.
+    return render_template('pages/survey.html', form=form)
 
 # ----- Launch -----#
 if __name__ == '__main__':

@@ -76,9 +76,25 @@ class Survey(Base):
     creator_id = Column(Integer, ForeignKey('user.id'))
     survey_group_id = Column(Integer, ForeignKey('survey_group.id'))
 
+    def __init__(self, title=None, question=None, creation_date=None, expiry_date=None, creator_id=None,
+                 survey_group_id=None):
+        self.title = title
+        self.question = question
+        self.creation_date = creation_date
+        self.expiry_date = expiry_date
+        self.creator_id = creator_id
+        self.survey_group_id = survey_group_id
+
     def __repr__(self):
         return (u'<{self.__class__.__name__}: {self.id}>'.format(self=self))
 
+class SurveyData(Base):
+    __tablename__ = 'survey_data'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    answer = Column(String(255), nullable=False)
+    survey_id = Column(Integer, ForeignKey('survey.id'))
+    user_id = Column(Integer, ForeignKey('user.id'))
 
 if __name__ == '__main__':
     print("Test Models")
@@ -119,4 +135,4 @@ if __name__ == '__main__':
     p = session.query(User).filter(User.id == subq.c.member_id).all()
     print p
     # q = session.query(User).add_columns(User.email, User.name).filter(User.id.in_(p)).all()
-    #print q
+    # print q

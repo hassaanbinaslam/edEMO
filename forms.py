@@ -28,6 +28,8 @@ class SurveyAddForm(Form):
     survey_group_id = SelectField('Survey Group')
     expiry_date_ = HiddenField('Creation Date', default=datetime.date.today()+datetime.timedelta(days=1))
 
+class SurveyForm(Form):
+    answer = SelectField('Select Answer', )
 
 if __name__ == '__main__':
     a = "test"
