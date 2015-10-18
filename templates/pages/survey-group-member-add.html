@@ -1,0 +1,13 @@
+{% extends 'layouts/base.html' %}
+{% from 'forms/common.html' import edit_field %}
+{% set title = 'Survey Group Member Add Form' %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+
+<form method="post" class="form-horizontal">
+    <legend>{{title}}</legend>
+    {{ edit_field(form.member_id) }}
+    <button type="submit" class="btn">Save</button>
+</form>
+
+{% endblock %}

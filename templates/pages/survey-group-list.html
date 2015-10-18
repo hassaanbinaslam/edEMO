@@ -1,0 +1,10 @@
+{% extends 'layouts/base.html' %}
+{% set title = 'Survey Group List' %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+<ul>
+    {% for survey_group in survey_group_list %}
+    <li>{{survey_group.name}}</li>
+    {% endfor %}
+</ul>
+{% endblock %}
