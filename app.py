@@ -43,7 +43,7 @@ if db.session.query(SurveyGroupMember).count() == 0:
     db.session.commit()
 if db.session.query(Survey).count() == 0:
     db.session.add(Survey("First Survey", "Hello World?", datetime.date.today(),
-                          datetime.date.today() + datetime.timedelta(days=1)), 2, 1)
+                          (datetime.date.today() + datetime.timedelta(days=1)), 2, 1))
 
 # ----- Controllers -----#
 @app.route('/')
