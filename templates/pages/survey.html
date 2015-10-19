@@ -1,10 +1,55 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title>Survey Page</title>
-</head>
-<body>
-Survey Page
-</body>
-</html>
+{% extends 'layouts/base.html' %}
+{% from 'forms/common.html' import edit_field %}
+{% set title = 'Survey' %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: 40px;">
+    <form method="post" class="form-horizontal">
+        <center>
+            <h1>{{ survey_data.title }}</h1>
+            <table class="table " style="width:40%;">
+                <tbody>
+                <tr>
+                    <td colspan="3" style="text-align:center">Creation Date</td>
+                    <td colspan="2">{{ survey_data.creation_date }}</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="text-align:center">Expiry Date</td>
+                    <td colspan="2">{{ survey_data.expiry_date }}</td>
+                </tr>
+                <tr>
+                    <td colspan="5" style="text-align:left">
+                        <strong>Question:</strong>
+                        <br \>
+
+                        <p>
+                            {{ survey_data.question }}
+                        </p>
+                    </td>
+                </tr>
+                <tr align="center">
+                    <td><img src="/static/img/face1.gif" width="60" height="60"></td>
+                    <td><img src="/static/img/face2.gif" width="60" height="60"></td>
+                    <td><img src="/static/img/face3.gif" width="60" height="60"></td>
+                    <td><img src="/static/img/face4.gif" width="60" height="60"></td>
+                    <td><img src="/static/img/face5.gif" width="60" height="60"></td>
+                </tr>
+                <tr align="center">
+                    <td><input type="radio" name="answer" id="answer-0" value="1"></td>
+                    <td><input type="radio" name="answer" id="answer-1" value="2"></td>
+                    <td><input type="radio" name="answer" id="answer-2" value="3"></td>
+                    <td><input type="radio" name="answer" id="answer-3" value="4"></td>
+                    <td><input type="radio" name="answer" id="answer-4" value="5"></td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="form-group has-error">
+                {% for error in form.answer.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-default">Save</button>
+        </center>
+    </form>
+</div>
+{% endblock %}

@@ -1,6 +1,6 @@
 from wtforms import *
 from wtforms.ext.sqlalchemy.fields import QuerySelectField
-import datetime#, timedelta
+import datetime  # , timedelta
 
 
 class UserRegistrationForm(Form):
@@ -26,14 +26,16 @@ class SurveyAddForm(Form):
     creation_date = DateField('Creation Date', default=datetime.date.today())
     expiry_date = DateField('Expiry Date', [validators.InputRequired()])
     survey_group_id = SelectField('Survey Group')
-    expiry_date_ = HiddenField('Creation Date', default=datetime.date.today()+datetime.timedelta(days=1))
+    expiry_date_ = HiddenField('Creation Date', default=datetime.date.today() + datetime.timedelta(days=1))
+
 
 class SurveyForm(Form):
-    answer = SelectField('Select Answer', )
+    # answer = SelectField('Select Answer', )
+    answer = RadioField("", choices=[("1", "1"), ("2", "2"), ("3", "3"), ("4", "4"), ("5", "5")])
+
 
 if __name__ == '__main__':
     a = "test"
-    form = SurveyAddForm()
-    print(form.expiry_date)
-    print(form.expiry_date_)
+    form = SurveyForm()
+    print(form.answer)
 

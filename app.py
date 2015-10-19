@@ -174,12 +174,15 @@ def survey(survey_id):
     """ Provide HTML form to create new survey """
     current_user_id = 2  # Temporary. Needs to be fixed
     form = SurveyForm(request.form)
+    survey_data = db.session.query(Survey).filter(Survey.id == survey_id).all()[0]
     if request.method == 'POST' and form.validate():
-        print "Success"
+        new_survey_data = SurveyData(form.answer.data, survey_id, current_user_id)
+        db.session.add(new_survey_data)
+        db.session.commit()
         # Success. Redirect user to full survey group list.
         return redirect(url_for('home'))
     # Load the page. If page was submitted and contain errors then load it with errors.
-    return render_template('pages/survey.html', form=form)
+    return render_template('pages/survey.html', form=form, survey_data=survey_data)
 
 # ----- Launch -----#
 if __name__ == '__main__':

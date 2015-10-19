@@ -88,6 +88,7 @@ class Survey(Base):
     def __repr__(self):
         return (u'<{self.__class__.__name__}: {self.id}>'.format(self=self))
 
+
 class SurveyData(Base):
     __tablename__ = 'survey_data'
 
@@ -95,6 +96,15 @@ class SurveyData(Base):
     answer = Column(String(255), nullable=False)
     survey_id = Column(Integer, ForeignKey('survey.id'))
     user_id = Column(Integer, ForeignKey('user.id'))
+
+    def __init__(self, answer=None, survey_id=None, user_id=None):
+        self.answer = answer
+        self.survey_id = survey_id
+        self.user_id = user_id
+
+    def __repr__(self):
+        return (u'<{self.__class__.__name__}: {self.id}>'.format(self=self))
+
 
 if __name__ == '__main__':
     print("Test Models")
