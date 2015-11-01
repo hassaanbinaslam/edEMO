@@ -1,11 +1,14 @@
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask.ext.login import UserMixin
+from flask import current_app
+from . import db, login_manager
 
-Base = declarative_base()
 
-
-class UserRole(Base):
+class UserRole(db.Model):
     __tablename__ = 'user_role'
 
     id = Column(Integer, primary_key=True)
@@ -16,7 +19,7 @@ class UserRole(Base):
         self.name = name
 
 
-class User(Base):
+class User(UserMixin, db.Model):
     """ User of the application """
     __tablename__ = 'user'
 
@@ -24,19 +27,66 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False)
     name = Column(String(255), nullable=False)
     bio = Column(Text, nullable=True)
-    role_id = Column(Integer, ForeignKey('user_role.id'))
+    role_id = Column(Integer, ForeignKey('user_role.id'), default=3)
+    password = Column(String(255))
+    confirmed = Column(Boolean, default=False)
 
-    def __init__(self, email=None, name=None, bio=None, role_id=None):
+    '''def __init__(self, email=None, name=None, bio=None, password=None, role_id=None):
         self.email = email
         self.name = name
         self.bio = bio
+        self.password = password
         self.role_id = role_id
+    '''
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password, password)
+
+    def generate_confirmation_token(self, expiration=86400):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'confirm': self.id})
+
+    def confirm(self, token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return False
+        if data.get('confirm') != self.id:
+            return False
+        self.confirmed = True
+        db.session.add(self)
+        return True
+
+    def generate_reset_token(self, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({'reset': self.id})
+
+    def reset_password(self, token, new_password):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return False
+        if data.get('reset') != self.id:
+            return False
+        self.password = generate_password_hash(new_password)
+        db.session.add(self)
+        return True
 
     def __repr__(self):
         return (u'<{self.__class__.__name__}: {self.id}>'.format(self=self))
 
 
-class SurveyGroup(Base):
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
+class SurveyGroup(db.Model):
     __tablename__ = 'survey_group'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -50,7 +100,7 @@ class SurveyGroup(Base):
         self.creator_id = creator_id
 
 
-class SurveyGroupMember(Base):
+class SurveyGroupMember(db.Model):
     __tablename__ = 'survey_group_member'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -65,7 +115,7 @@ class SurveyGroupMember(Base):
         return (u'<{self.__class__.__name__}: {self.id}>'.format(self=self))
 
 
-class Survey(Base):
+class Survey(db.Model):
     __tablename__ = 'survey'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -89,7 +139,7 @@ class Survey(Base):
         return (u'<{self.__class__.__name__}: {self.id}>'.format(self=self))
 
 
-class SurveyData(Base):
+class SurveyData(db.Model):
     __tablename__ = 'survey_data'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -107,9 +157,10 @@ class SurveyData(Base):
 
 
 if __name__ == '__main__':
+    """
     print("Test Models")
     engine = create_engine('sqlite:///:memory:', echo=True)
-    Base.metadata.create_all(engine)
+    db.Model.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
 
@@ -133,16 +184,8 @@ if __name__ == '__main__':
     session.add(SurveyGroupMember(1, 4))
     session.commit()
 
-    users = session.query(User).all()
-    print users
-    for user in users:
-        print "ID: %s, Email: %s, Bio: %s" % (user.id, user.email, user.bio)
-
-    subq = session.query(SurveyGroupMember).add_column(SurveyGroupMember.member_id).filter(
-        SurveyGroupMember.survey_group_id == 1).subquery()
-    print subq
-    # p = session.query(User, SurveyGroupMember).filter(User.id == SurveyGroupMember.member_id).all()
-    p = session.query(User).filter(User.id == subq.c.member_id).all()
-    print p
-    # q = session.query(User).add_columns(User.email, User.name).filter(User.id.in_(p)).all()
-    # print q
+    User.query.all()
+        """
+    u = User()
+    u.set_password('cat')
+    print u.password

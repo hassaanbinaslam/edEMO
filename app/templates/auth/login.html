@@ -1,0 +1,51 @@
+{% extends 'layouts/base.html' %}
+{% from 'forms/common.html' import edit_field %}
+{% set title = 'Log in Page' %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+
+<div class="container" style="padding-top: 40px;">
+    <center>
+        <form method="post" class="form-horizontal">
+            <div class="col-lg-4 col-lg-offset-4">
+                <h1>Please sign in</h1>
+                <input id={{form.email.id}} name={{form.email.name}} type="text" class="form-control input-lg"
+                       placeholder="Email" required
+                       autofocus>
+
+                <div class="has-error">
+                    {% for error in form.email.errors %}
+                    <span class="help-block">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <input id={{form.password.id}} name={{form.password.name}} type="password" class="form-control input-lg"
+                       placeholder="Password" required>
+
+                <div class="has-error">
+                    {% for error in form.password.errors %}
+                    <span class="help-block">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div style="padding-top: 10px;">
+                    <button type="submit" class="btn btn-lg btn-default btn-block">Sign in</button>
+                </div>
+
+                <!-- Display Alerts :Start -->
+                {% include 'layouts/alerts.html'%}
+                <!-- Display Alerts :End -->
+            </div>
+        </form>
+    </center>
+</div>
+
+<div class="container">
+    <center>
+        <p>Forgot password? <a href="{{ url_for('auth.password_reset_request') }}">Click here to reset it</a>.</p>
+
+        <p>New user? <a href="{{ url_for('auth.register') }}">Click here to register</a>.</p>
+    </center>
+</div>
+
+{% endblock %}

@@ -2,13 +2,32 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 
+<!-- Display Alerts :Start -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<!-- Error Alerts -->
+{% if category == 'error' %}
+<div class="alert alert-danger" role="alert">{{ message }}</div>
+{% endif %}
+
+<!-- Success Alerts -->
+{% if category == 'success' %}
+<div class="alert alert-success" role="alert">{{ message }}</div>
+{% endif %}
+
+{% endfor %}
+{% endif %}
+{% endwith %}
+<!-- Display Alerts :End -->
+
 <div class="page-header">
     <h1>Welcome to edEMO!</h1>
 </div>
 <p class="lead">This is a test page.</p>
 <p class="lead">Available Pages List</p>
 <ul>
-    <li><a href="/login">Login</a></li>
+    <li><a href="auth/login">Login</a></li>
     <li><a href="/profile">View Profile</a></li>
     <li><a href="/user/register">Register User</a></li>
     <li><a href="/survey/group/add">Create Survey Group</a></li>

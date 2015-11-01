@@ -1,0 +1,19 @@
+{% extends 'layouts/base.html' %}
+{% from 'forms/common.html' import edit_field %}
+{% set title = 'Create Survey' %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+
+<form method="post" class="form-horizontal">
+    <center>
+        <h1>{{title}}</h1>
+        {{ edit_field(form.title, class="span3", placeholder="Survey Title") }}
+        {{ edit_field(form.question, class="span3", placeholder="Survey Question") }}
+        {{ edit_field(form.creation_date, class="span3", type="date", readonly=true) }}
+        {{ edit_field(form.expiry_date, class="span3", type="date", min=form.expiry_date_.data) }}
+        {{ edit_field(form.survey_group_id) }}
+        <button type="submit" class="btn btn-default">Save</button>
+    </center>
+</form>
+
+{% endblock %}

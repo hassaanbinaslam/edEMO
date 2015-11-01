@@ -23,6 +23,19 @@
 <body {% block body_attribs %}{% endblock body_attribs %}>
 {% block body -%}
 {% block navbar %}
+
+{% if current_user.is_authenticated %}
+<nav class="navbar navbar-default">
+    <div class="container">
+        <p class="navbar-text navbar-right">
+            {{current_user.email}}
+            |
+            <a href="{{ url_for('auth.logout') }}">Sign Out</a>
+        </p>
+    </div>
+</nav>
+{% endif %}
+
 {%- endblock navbar %}
 {% block content -%}
 {%- endblock content %}

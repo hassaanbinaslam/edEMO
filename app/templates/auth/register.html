@@ -1,0 +1,64 @@
+{% extends 'layouts/base.html' %}
+{% from 'forms/common.html' import edit_field %}
+{% set title = 'Register User' %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+
+<form method="post" class="form-horizontal">
+    <center>
+        <div class="col-lg-4 col-lg-offset-4">
+            <h1>Create New Account</h1>
+
+            <!-- Email -->
+            <input id={{form.email.id}} name={{form.email.name}} type="text" class="form-control input-lg"
+                   placeholder="Email" required
+                   autofocus>
+
+            <div class="has-error">
+                {% for error in form.email.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Name -->
+            <input id={{form.name.id}} name={{form.name.name}} type="text" class="form-control input-lg"
+                   placeholder="Full Name">
+
+            <div class="has-error">
+                {% for error in form.name.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Password -->
+            <input id={{form.password.id}} name={{form.password.name}} type="password" class="form-control input-lg"
+                   placeholder="Password" required>
+
+            <div class="has-error">
+                {% for error in form.password.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Password2 -->
+            <input id={{form.password2.id}} name={{form.password2.name}} type="password" class="form-control input-lg"
+                   placeholder="Confirm Password" required>
+
+            <div class="has-error">
+                {% for error in form.password2.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div style="padding-top: 10px;">
+                <button type="submit" class="btn btn-lg btn-default btn-block">Register</button>
+            </div>
+
+            <!-- Display Alerts :Start -->
+            {% include 'layouts/alerts.html'%}
+            <!-- Display Alerts :End -->
+        </div>
+    </center>
+</form>
+
+{% endblock %}
