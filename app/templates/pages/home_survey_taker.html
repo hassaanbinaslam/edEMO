@@ -1,0 +1,41 @@
+{% extends 'layouts/base.html' %}
+{% from 'forms/common.html' import edit_field %}
+{% set title = 'Survey Taker Home' %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+
+{% if surveys|length == 0%}
+<div class="container" style="padding-top: 40px;">
+    <center>
+        <div class="alert alert-info" role="alert">
+            <h3>You don't have any survey available at the moment.</h3>
+        </div>
+    </center>
+</div>
+{% else %}
+<div class="container" style="padding-top: 40px;">
+    <center>
+        <h1>Available Surveys</h1>
+        <table class="table " style="width:40%;text-align:center">
+            <thead>
+            <tr>
+                <th style="text-align:center">Survey Title</th>
+                <th style="text-align:center">Expiry Date</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for survey in surveys %}
+            <tr>
+                <td>
+                    <a href="{{url_for('main.survey', survey_id=survey.id)}}">{{survey.title}}</a>
+                </td>
+                <td>{{survey.expiry_date}}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </center>
+</div>
+{% endif %}
+
+{% endblock %}

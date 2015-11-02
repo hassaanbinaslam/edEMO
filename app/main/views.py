@@ -1,4 +1,5 @@
-from flask import render_template, redirect, url_for, request
+from flask import render_template, redirect, url_for, request, flash
+from flask.ext.login import login_required, current_user
 from . import main
 from .forms import UserRegistrationForm, SurveyGroupCreationForm, SurveyGroupMemberAddForm, SurveyAddForm, SurveyForm
 from ..models import UserRole, User, SurveyGroup, SurveyGroupMember, Survey, SurveyData
@@ -7,8 +8,38 @@ from .. import db
 
 
 @main.route('/')
+@login_required
 def home():
-    return render_template('pages/home.html')
+    role = UserRole.query.filter(UserRole.id == current_user.role_id).first()
+
+    if role.name == 'SURVEY_TAKER':
+        # get survey groups in which user is added
+        survey_groups = SurveyGroupMember.query.filter(SurveyGroupMember.member_id == current_user.id).subquery()
+        # get surveys user has already taken
+        surveys_taken = SurveyData.query.filter(SurveyData.user_id == current_user.id).all()
+        surveys_taken_list = []
+        for survey in surveys_taken:
+            surveys_taken_list.append(survey.survey_id)
+        # surveys id list taken by current user
+        # print surveys_taken_list
+
+        # get surveys associated with survey groups
+        # filter surveys that are expired
+        # filter surveys user has already taken
+        surveys = Survey.query.filter(Survey.survey_group_id == survey_groups.c.survey_group_id) \
+            .filter(Survey.expiry_date >= Survey.creation_date) \
+            .filter(Survey.id.notin_(surveys_taken_list)).all()
+
+        return render_template('pages/home_survey_taker.html', surveys=surveys)
+    elif role.name == 'SURVEY_ADMIN':
+        return render_template('pages/home_survey_admin.html')
+    return render_template('pages/test.html')
+
+
+@main.route('/demo')
+def demo():
+    return render_template('pages/demo.html')
+
 
 @main.route('/profile')
 def profile():
@@ -127,16 +158,39 @@ def survey_list():
 
 
 @main.route('/survey/<int:survey_id>', methods=['GET', 'POST'])
+@login_required
 def survey(survey_id):
     """ Provide HTML form to create new survey """
-    current_user_id = 2  # Temporary. Needs to be fixed
+
+    # check if requested survey is available in the system
+    # also check if survey has not already expired
+    requested_survey = db.session.query(Survey).filter(Survey.id == survey_id) \
+        .filter(Survey.expiry_date >= Survey.creation_date).first()
+    if not requested_survey:
+        print 'Survey is not available.'
+        return redirect(url_for('main.home'))
+
+    # check if current user is allowed to take the requested survey
+    # to do this check if current user is member of the group to which requested survey is assigned
+    member = SurveyGroupMember.query.filter(SurveyGroupMember.survey_group_id == requested_survey.survey_group_id) \
+        .filter(SurveyGroupMember.member_id == current_user.id).first()
+    if not member:
+        print 'Survey is not available to current user.'
+        return redirect(url_for('main.home'))
+
+    # check if user has already taken the survey
+    survey_already_taken = SurveyData.query.filter(SurveyData.survey_id == survey_id) \
+        .filter(SurveyData.user_id == current_user.id).first()
+    if survey_already_taken:
+        print 'Survey already taken by user.'
+        return redirect(url_for('main.home'))
+
     form = SurveyForm(request.form)
-    survey_data = db.session.query(Survey).filter(Survey.id == survey_id).all()[0]
     if request.method == 'POST' and form.validate():
-        new_survey_data = SurveyData(form.answer.data, survey_id, current_user_id)
+        new_survey_data = SurveyData(form.answer.data, survey_id, current_user.id)
         db.session.add(new_survey_data)
-        db.session.commit()
+
         # Success. Redirect user to full survey group list.
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     # Load the page. If page was submitted and contain errors then load it with errors.
-    return render_template('pages/survey.html', form=form, survey_data=survey_data)
+    return render_template('pages/survey.html', form=form, survey_data=requested_survey)

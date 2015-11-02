@@ -2,7 +2,8 @@ import os
 from app import create_app, db
 from flask.ext.script import Manager, Server
 from flask.ext.migrate import Migrate, MigrateCommand
-from app.models import UserRole, User
+from app.models import UserRole, User, SurveyGroup, SurveyGroupMember, Survey, SurveyData
+import datetime
 
 app = create_app('default')
 manager = Manager(app)
@@ -27,6 +28,19 @@ def db_setup():
         user1.set_password('cat')
         db.session.add(user1)
     print 'Good'
+
+@manager.command
+def db_test():
+    #db.session.add(SurveyGroup('First Group', 'test group', '1'))
+    #db.session.add(SurveyGroup('Second Group', 'test group', '1'))
+
+    #db.session.add(SurveyGroupMember('1', '2'))
+    #db.session.add(SurveyGroupMember('1', '3'))
+    q = """Please choose the face which most represents your feelings to the statement: I am confident that I will
+    complete the project, and I am following my proposed project timeline."""
+    #db.session.add(Survey('First', q, datetime.date.today(), datetime.date.today(), '1', '1'))
+    #db.session.add(Survey('Second', 'Q?', datetime.date.today(), datetime.date.today(), '1', '1'))
+    db.session.add(SurveyData(1,1,1))
 
 if __name__ == '__main__':
     # db.drop_all()
