@@ -1,6 +1,4 @@
-from sqlalchemy import *
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean, Date
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask.ext.login import UserMixin
@@ -18,6 +16,9 @@ class UserRole(db.Model):
         self.id = id
         self.name = name
 
+    def __repr__(self):
+        return '<UserRole id:%r , name:%r>' % (self.id, self.name)
+
 
 class User(UserMixin, db.Model):
     """ User of the application """
@@ -30,14 +31,6 @@ class User(UserMixin, db.Model):
     role_id = Column(Integer, ForeignKey('user_role.id'), default=3)
     password = Column(String(255))
     confirmed = Column(Boolean, default=False)
-
-    '''def __init__(self, email=None, name=None, bio=None, password=None, role_id=None):
-        self.email = email
-        self.name = name
-        self.bio = bio
-        self.password = password
-        self.role_id = role_id
-    '''
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -77,8 +70,18 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         return True
 
+    def is_system_admin(self):
+        return UserRole.query.filter(UserRole.id == self.role_id).first().name == 'SYSTEM_ADMIN'
+
+    def is_survey_admin(self):
+        return UserRole.query.filter(UserRole.id == self.role_id).first().name == 'SURVEY_ADMIN'
+
+    def is_survey_taker(self):
+        return UserRole.query.filter(UserRole.id == self.role_id).first().name == 'SURVEY_TAKER'
+
     def __repr__(self):
-        return (u'<{self.__class__.__name__}: {self.id}>'.format(self=self))
+        return '<User id:%r , email:%r, name:%r, role_id:%r, confirmed:%r>' % (
+        self.id, self.email, self.name, self.role_id, self.confirmed)
 
 
 @login_manager.user_loader
@@ -105,11 +108,11 @@ class SurveyGroupMember(db.Model):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     survey_group_id = Column(Integer, ForeignKey('survey_group.id'))
-    member_id = Column(Integer, ForeignKey('user.id'))
+    email = Column(String(255))
 
-    def __init__(self, survey_group_id=None, member_id=None):
+    def __init__(self, survey_group_id=None, email=None):
         self.survey_group_id = survey_group_id
-        self.member_id = member_id
+        self.email = email
 
     def __repr__(self):
         return (u'<{self.__class__.__name__}: {self.id}>'.format(self=self))
@@ -155,37 +158,3 @@ class SurveyData(db.Model):
     def __repr__(self):
         return (u'<{self.__class__.__name__}: {self.id}>'.format(self=self))
 
-
-if __name__ == '__main__':
-    """
-    print("Test Models")
-    engine = create_engine('sqlite:///:memory:', echo=True)
-    db.Model.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    session.add(UserRole(1, "SYSTEM_ADMIN"))
-    session.add(UserRole(2, "SURVEY_ADMIN"))
-    session.add(UserRole(3, "SURVEY_TAKER"))
-    session.commit()
-
-    session.add(User("admin@localhost", "Admin", "System Admin", 1))
-    session.add(User("user1@localhost", "Survey Admin", "Survey Admin", 2))
-    session.add(User("user2@localhost", "Survey Taker 1", "Survey Taker 1", 3))
-    session.add(User("user3@localhost", "Survey Taker 2", "Survey Taker 2", 3))
-    session.commit()
-
-    session.add(SurveyGroup("CS6460", "EdTech", 2))
-    session.commit()
-
-    session.add(SurveyGroupMember(1, 3))
-    session.add(SurveyGroupMember(1, 4))
-    session.add(SurveyGroupMember(1, 3))
-    session.add(SurveyGroupMember(1, 4))
-    session.commit()
-
-    User.query.all()
-        """
-    u = User()
-    u.set_password('cat')
-    print u.password

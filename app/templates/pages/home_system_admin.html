@@ -1,21 +1,24 @@
 {% extends 'layouts/base.html' %}
 {% from 'forms/common.html' import edit_field %}
-{% set title = 'Survey Admin Home' %}
+{% set title = 'System Admin Home' %}
 {% block title %}{{title}}{% endblock %}
 {% block content %}
 
 <div class="container">
     <center>
         <div class="col-lg-4 col-lg-offset-4">
-            <h1>Available Survey Groups</h1>
+            <h1>Choose an Action</h1>
 
             <div class="list-group">
-                {% for survey_group in survey_group_list %}
-                <a class="list-group-item">
-                    {{survey_group.name}}
+                <a href="{{url_for('main.edit_role')}}" class="list-group-item">
+                    <h3>Edit User Role</h3>
                 </a>
-                {% endfor %}
             </div>
+
+            <!-- Display Alerts :Start -->
+            {% include 'layouts/alerts.html'%}
+            <!-- Display Alerts :End -->
+
         </div>
     </center>
 </div>

@@ -1,6 +1,22 @@
-{% extends 'layouts/main.html' %}
+{% extends 'layouts/base.html' %}
+{% set title = '505' %}
+{% block title %}{{title}}{% endblock %}
 {% block content %}
-  <h1>Something's wrong!</h1>
-  <p>Fortunately we are on the job, and you can just return home!</p>
-  <p><a href="{{url_for('index')}}">Back</a></p>
+
+<div class="container">
+    <center>
+        <div class="col-lg-4 col-lg-offset-4">
+            <div class="page-header">
+                <img src="/static/img/face5.gif">
+
+                <h1><span class="label label-danger">{{title}}</span></h1>
+            </div>
+
+            <div class="alert alert-warning" role="alert">
+                Something terrible has happened. I am sorry for that.
+            </div>
+        </div>
+    </center>
+</div>
+
 {% endblock %}

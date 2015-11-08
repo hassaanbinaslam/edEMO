@@ -1,20 +1,17 @@
 from flask import render_template, redirect, url_for, request, flash
 from flask.ext.login import login_required, current_user
 from . import main
-from .forms import UserRegistrationForm, SurveyGroupCreationForm, SurveyGroupMemberAddForm, SurveyAddForm, SurveyForm
+from .forms import SurveyGroupCreationForm, SurveyAddForm, SurveyForm
 from ..models import UserRole, User, SurveyGroup, SurveyGroupMember, Survey, SurveyData
-from ..email import send_mail
 from .. import db
 
 
 @main.route('/')
 @login_required
 def home():
-    role = UserRole.query.filter(UserRole.id == current_user.role_id).first()
-
-    if role.name == 'SURVEY_TAKER':
+    if current_user.is_survey_taker():
         # get survey groups in which user is added
-        survey_groups = SurveyGroupMember.query.filter(SurveyGroupMember.member_id == current_user.id).subquery()
+        survey_groups = SurveyGroupMember.query.filter(SurveyGroupMember.email == current_user.email).subquery()
         # get surveys user has already taken
         surveys_taken = SurveyData.query.filter(SurveyData.user_id == current_user.id).all()
         surveys_taken_list = []
@@ -31,14 +28,11 @@ def home():
             .filter(Survey.id.notin_(surveys_taken_list)).all()
 
         return render_template('pages/home_survey_taker.html', surveys=surveys)
-    elif role.name == 'SURVEY_ADMIN':
+    elif current_user.is_survey_admin():
         return render_template('pages/home_survey_admin.html')
-    return render_template('pages/test.html')
-
-
-@main.route('/demo')
-def demo():
-    return render_template('pages/demo.html')
+    elif current_user.is_system_admin():
+        return render_template('pages/home_system_admin.html')
+    return render_template('errors/404.html')
 
 
 @main.route('/profile')
@@ -46,115 +40,83 @@ def profile():
     return render_template('pages/view-profile.html')
 
 
-@main.route('/user/register', methods=['GET', 'POST'])
-def user_register():
-    """ Provide HTML form to register new user """
-    form = UserRegistrationForm(request.form)
-    roles = db.session.query(UserRole).all()
-    user_roles_available = []
-    for role in roles:
-        user_roles_available.append((str(role.id), role.name))
-    form.role_id.choices = user_roles_available
-    if request.method == 'POST' and form.validate():
-        new_user = User()
-        form.populate_obj(new_user)
-        db.session.add(new_user)
-        db.session.commit()
-        # Send confirmation email to user.
-        token = new_user.generate_confirmation_token()
-        send_mail(new_user.email, 'Confirm Your Account', 'auth/email/confirm', user=new_user, token=token)
-        # Success. Redirect user to full users list.
-        return redirect(url_for('main.home'))
-    # Load the page. If page was submitted and contain errors then load it with errors.
-    return render_template('pages/user-register.html', form=form)
-    # return render_template('pages/test.html')
-
-
 @main.route('/survey/group/add', methods=['GET', 'POST'])
+@login_required
 def survey_group_add():
     """ Provide HTML form to create new survey group """
+
+    # this page is limited to SURVEY_ADMIN only. Check if current user is SURVEY_ADMIN
+    if not current_user.is_survey_admin():
+        return redirect(url_for('main.home'))
+
     form = SurveyGroupCreationForm(request.form)
-    current_user_id = 2  # Temporary. Needs to be fixed
     if request.method == 'POST' and form.validate():
-        new_survey_group = SurveyGroup()
-        form.populate_obj(new_survey_group)
-        new_survey_group.creator_id = current_user_id
-        db.session.add(new_survey_group)
-        db.session.commit()
+        validated_mail_lists = form.validate_members_email_list()  # return [good list, bad list]
+
+        # check if there is no invalid email address received from user
+        if len(validated_mail_lists[1]) > 0:
+            flash(
+                "These mail address are not valid and are removed from the list. Please check and submit the form again: "
+                + '\n'.join(validated_mail_lists[1]),
+                'error')
+            form.members.data = ", ".join(validated_mail_lists[0])
+            return render_template('pages/survey-group-add.html', form=form)
+
+        survey_group = SurveyGroup()
+        form.populate_obj(survey_group)
+        survey_group.creator_id = current_user.id
+        db.session.add(survey_group)
+
+        survey_group_id = SurveyGroup.query.filter_by(name=survey_group.name).first().id
+        for member in validated_mail_lists[0]:
+            db.session.add(SurveyGroupMember(survey_group_id, member))
+
         # Success. Redirect user to full survey group list.
-        return redirect(url_for('home'))
+        return redirect(url_for('main.home'))
     # Load the page. If page was submitted and contain errors then load it with errors.
     return render_template('pages/survey-group-add.html', form=form)
 
 
 @main.route('/survey/group/list')
+@login_required
 def survey_group_list():
-    current_user_id = 2  # Temporary. Needs to be fixed
-    survey_group_list = db.session.query(SurveyGroup).filter(SurveyGroup.creator_id == current_user_id)
-    return render_template('pages/survey-group-list.html', survey_group_list=survey_group_list)
+    # this page is limited to SURVEY_ADMIN only. Check if current user is SURVEY_ADMIN
+    if not current_user.is_survey_admin():
+        return redirect(url_for('main.home'))
 
-
-@main.route('/survey/group/<int:survey_group_id>/member/add', methods=['GET', 'POST'])
-def survey_group_member_add(survey_group_id):
-    """ Provide HTML form to create new survey group """
-    current_user_id = 2  # Temporary. Needs to be fixed
-    current_user_role_id = 2  # Temporary. Needs to be fixed
-    form = SurveyGroupMemberAddForm(request.form)
-    survey_group_members_list = db.session.query(User).add_columns(User.id, User.email).filter(
-        User.role_id > current_user_role_id) \
-        .order_by(User.email)
-    survey_group_members_selection_list = []
-    for survey_group_member in survey_group_members_list:
-        survey_group_members_selection_list.append((str(survey_group_member.id), survey_group_member.email))
-    form.member_id.choices = survey_group_members_selection_list
-    if request.method == 'POST' and form.validate():
-        for member_id in form.member_id.data:
-            survey_group_member = SurveyGroupMember(survey_group_id, member_id)
-            db.session.add(survey_group_member)
-            db.session.commit()
-        # Success. Redirect user to full survey group list.
-        return redirect(url_for('home'))
-    # Load the page. If page was submitted and contain errors then load it with errors.
-    return render_template('pages/survey-group-member-add.html', form=form)
-
-
-@main.route('/survey/group/<int:survey_group_id>/member/list')
-def survey_group_member_list(survey_group_id):
-    current_user_id = 2  # Temporary. Needs to be fixed
-    subquery = db.session.query(SurveyGroupMember).add_column(SurveyGroupMember.member_id).filter(
-        SurveyGroupMember.survey_group_id == survey_group_id).subquery()
-    survey_group_member_list = db.session.query(User).filter(User.id == subquery.c.member_id).order_by(User.email)
-    return render_template('pages/survey-group-member-list.html', survey_group_member_list=survey_group_member_list)
+    survey_groups = db.session.query(SurveyGroup).filter(SurveyGroup.creator_id == current_user.id) \
+        .order_by(SurveyGroup.name).all()
+    return render_template('pages/survey-group-list.html', survey_group_list=survey_groups)
 
 
 @main.route('/survey/add', methods=['GET', 'POST'])
+@login_required
 def survey_add():
     """ Provide HTML form to create new survey """
-    current_user_id = 2  # Temporary. Needs to be fixed
+
+    # this page is limited to SURVEY_ADMIN only. Check if current user is SURVEY_ADMIN
+    if not current_user.is_survey_admin():
+        return redirect(url_for('main.home'))
+
     form = SurveyAddForm(request.form)
-    survey_group_list = db.session.query(SurveyGroup).add_columns(SurveyGroup.id, SurveyGroup.name) \
-        .filter(SurveyGroup.creator_id == current_user_id)
+    survey_group_list = db.session.query(SurveyGroup).filter(SurveyGroup.creator_id == current_user.id) \
+        .order_by(SurveyGroup.name).all()
+
     survey_group_selection_list = []
     for survey_group in survey_group_list:
         survey_group_selection_list.append((str(survey_group.id), survey_group.name))
     form.survey_group_id.choices = survey_group_selection_list
+
     if request.method == 'POST' and form.validate():
         new_survey = Survey()
         form.populate_obj(new_survey)
-        new_survey.creator_id = current_user_id
+        new_survey.creator_id = current_user.id
         db.session.add(new_survey)
-        db.session.commit()
         # Success. Redirect user to full survey group list.
-        return redirect(url_for('home'))
+        flash("Survey '" + new_survey.title + "' has been created.", 'success')
+        return redirect(url_for('main.home'))
     # Load the page. If page was submitted and contain errors then load it with errors.
-    return render_template('pages/survey-add.html', form=form)
-
-
-@main.route('/survey/list')
-def survey_list():
-    current_user_id = 2  # Temporary. Needs to be fixed
-    survey_list = db.session.query(Survey).filter(Survey.creator_id == current_user_id)
-    return render_template('pages/survey-list.html', survey_list=survey_list)
+    return render_template('pages/survey-add.html', form=form, survey_group_list=survey_group_list)
 
 
 @main.route('/survey/<int:survey_id>', methods=['GET', 'POST'])
@@ -173,7 +135,7 @@ def survey(survey_id):
     # check if current user is allowed to take the requested survey
     # to do this check if current user is member of the group to which requested survey is assigned
     member = SurveyGroupMember.query.filter(SurveyGroupMember.survey_group_id == requested_survey.survey_group_id) \
-        .filter(SurveyGroupMember.member_id == current_user.id).first()
+        .filter(SurveyGroupMember.email == current_user.email).first()
     if not member:
         print 'Survey is not available to current user.'
         return redirect(url_for('main.home'))
@@ -194,3 +156,39 @@ def survey(survey_id):
         return redirect(url_for('main.home'))
     # Load the page. If page was submitted and contain errors then load it with errors.
     return render_template('pages/survey.html', form=form, survey_data=requested_survey)
+
+
+@main.route('/edit-user-role', methods=['GET', 'POST'])
+@login_required
+def edit_role():
+    """
+    Purpose: From this page system admin users can edit other user roles.
+    Permission: This page is available to SYSTEM_ADMIN users only.
+    Working:
+        a. On request user is first asked to enter the mail address
+        b. If provided mail address is not registered in the system then an error message is displayed. Otherwise user
+        details are displayed with an option to change the user role.
+        c. A success message is displayed to user on change of given user role.
+    """
+
+    # check if current user is with system admin role
+    if not current_user.is_system_admin():
+        return redirect(url_for('main.home'))
+
+    if request.method == 'POST':
+        if request.form['btn'] == 'search':
+            user = User.query.filter_by(email=request.form['email']).first()
+            if user:
+                role_list = UserRole.query.all()
+                return render_template('pages/edit_user_role.html', user=user, role_list=role_list)
+            else:
+                flash('Entered email address is not registered in the system', 'error')
+        elif request.form['btn'] == 'edit':
+            user_email = request.form['user_email']
+            user_role = request.form['user_role']
+            user = User.query.filter_by(email=user_email).first()
+            user.role_id = int(user_role)
+            db.session.commit()
+            flash("User '" + user_email + "' role has been updated", 'success')
+
+    return render_template('pages/edit_user_role.html')

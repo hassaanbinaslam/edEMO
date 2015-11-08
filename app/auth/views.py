@@ -42,7 +42,7 @@ def register():
         token = new_user.generate_confirmation_token()
         send_mail(new_user.email, 'Confirm Your Account', 'auth/email/confirm', user=new_user, token=token)
 
-        flash('You can now registered. Please check your inbox for confirmation email.', 'success')
+        flash('You are now registered. Please check your inbox for confirmation email.', 'success')
     return render_template('auth/register.html', form=form)
 
 
@@ -61,7 +61,7 @@ def confirm(token):
 
 @auth.before_app_request
 def before_request():
-    if current_user.is_authenticated and request.endpoint[:5] != 'auth.' and not current_user.confirmed:
+    if current_user.is_authenticated and request.endpoint and request.endpoint[:5] != 'auth.' and not current_user.confirmed:
         return redirect(url_for('auth.unconfirmed'))
 
 

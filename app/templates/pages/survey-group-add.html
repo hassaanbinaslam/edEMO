@@ -6,10 +6,50 @@
 
 <form method="post" class="form-horizontal">
     <center>
-        <h1>{{title}}</h1>
-        {{ edit_field(form.name, maxlength=255, class="span3", placeholder="Survey Group Name") }}
-        {{ edit_field(form.description, maxlength=500, class="span3", placeholder="Survey Group Description") }}
-        <button type="submit" class="btn btn-default">Save</button>
+        <div class="col-lg-4 col-lg-offset-4">
+            <h1>{{title}}</h1>
+
+            <!-- Survey Group Name -->
+            <input id={{form.name.id}} name={{form.name.name}} type="text" class="form-control input-lg"
+                   placeholder="Survey group name" value="{{form.name.data if form.name.data is not none}}" required
+                   autofocus>
+
+            <div class="has-error">
+                {% for error in form.name.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Survey Group Description -->
+            <textarea id={{form.description.id}} name={{form.description.name}} class="form-control input-lg" rows="3"
+                      placeholder="Survey group description">{{form.description.data if form.description.data is not none}}</textarea>
+
+            <div class="has-error">
+                {% for error in form.description.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Survey Group Members -->
+            <textarea id={{form.members.id}} name={{form.members.name}} class="form-control input-lg" rows="3"
+                      placeholder="Comma separated list of survey group members e.g. tom@cn.com, jerry@cn.com">{{
+                form.members.data if form.members.data is not none}}</textarea>
+
+            <div class="has-error">
+                {% for error in form.members.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div style="padding-top: 10px;">
+                <button type="submit" class="btn btn-lg btn-default btn-block">Create</button>
+            </div>
+
+            <!-- Display Alerts :Start -->
+            {% include 'layouts/alerts.html'%}
+            <!-- Display Alerts :End -->
+
+        </div>
     </center>
 </form>
 

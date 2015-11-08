@@ -10,16 +10,24 @@
             <h1>Choose an Action</h1>
 
             <div class="list-group">
-                <a href="#" class="list-group-item">
+                <a href="{{url_for('main.survey_group_add')}}" class="list-group-item">
                     <h3>Create Survey Group</h3>
                 </a>
-                <a href="#" class="list-group-item">
+                <a href="{{url_for('main.survey_group_list')}}" class="list-group-item">
+                    <h3>List Survey Groups</h3>
+                </a>
+                <a href="{{url_for('main.survey_add')}}" class="list-group-item">
                     <h3>Create Survey</h3>
                 </a>
                 <a href="#" class="list-group-item">
-                    <h3>View Resutls</h3>
+                    <h3>View Survey Results</h3>
                 </a>
             </div>
+
+            <!-- Display Alerts :Start -->
+            {% include 'layouts/alerts.html'%}
+            <!-- Display Alerts :End -->
+
         </div>
     </center>
 </div>
