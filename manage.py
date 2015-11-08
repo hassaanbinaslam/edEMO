@@ -2,7 +2,7 @@ from app import create_app, db
 from flask import render_template
 from flask.ext.script import Manager, Server, Shell
 from flask.ext.migrate import Migrate, MigrateCommand
-from app.models import UserRole, User, SurveyGroup, SurveyGroupMember, Survey, SurveyData
+from app.models import UserRole, User, SurveyGroup, SurveyGroupMember, Survey, SurveyDatav
 
 app = create_app('default')
 manager = Manager(app)
