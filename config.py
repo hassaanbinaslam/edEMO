@@ -4,7 +4,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 
 class Config:
-    SECRET_KEY = 'TempSecretKey'
+    SECRET_KEY = os.environ.get('SECRET_KEY')
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
@@ -12,8 +12,8 @@ class Config:
     MAIL_USE_SSL = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    APP_MAIL_SUBJECT_PREFIX = '[edEMO]'
-    APP_MAIL_SENDER = 'edEMO Admin <edemo@noreply.com>'
+    APP_MAIL_SUBJECT_PREFIX = os.environ.get('MAIL_PREFIX')
+    APP_MAIL_SENDER = os.environ.get('MAIL_SENDER')
 
     @staticmethod
     def init_app(app):

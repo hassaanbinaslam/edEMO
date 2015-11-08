@@ -1,4 +1,6 @@
 *.pyc
-.idea
 *.db
+
+# Developer Stuff
+.idea
 temporary.txt

@@ -15,8 +15,7 @@
     <link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet">
     {%- endblock styles %}
     <!-- Favicon -->
-    <link rel="shortcut icon" href="static/ico/favicon.ico" type="image/x-icon">
-    <link rel="icon" href="static/ico/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='ico/favicon.ico') }}">
     <!-- /Favicon -->
     {%- endblock head %}
 </head>
@@ -24,7 +23,7 @@
 {% block body -%}
 {% block navbar %}
 
-{% if current_user.is_authenticated %}
+{% if current_user.is_authenticated and not current_user.is_anonymous %}
 <nav class="navbar navbar-default">
     <div class="container">
         <a class="btn btn-default navbar-btn" href="{{ url_for('main.home') }}">Home</a>
