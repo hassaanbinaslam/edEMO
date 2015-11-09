@@ -9,6 +9,7 @@
         <div class="col-lg-4 col-lg-offset-4">
             <h1>Available Survey Groups</h1>
 
+            {% if survey_group_list %}
             <div class="list-group">
                 {% for survey_group in survey_group_list %}
                 <a class="list-group-item">
@@ -16,6 +17,9 @@
                 </a>
                 {% endfor %}
             </div>
+            {% else %}
+            <div class="alert alert-info" role="alert"><strong>You have not created any survey group yet.</strong></div>
+            {% endif %}
         </div>
     </center>
 </div>

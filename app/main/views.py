@@ -86,6 +86,7 @@ def survey_group_list():
 
     survey_groups = db.session.query(SurveyGroup).filter(SurveyGroup.creator_id == current_user.id) \
         .order_by(SurveyGroup.name).all()
+    print survey_groups
     return render_template('pages/survey-group-list.html', survey_group_list=survey_groups)
 
 
