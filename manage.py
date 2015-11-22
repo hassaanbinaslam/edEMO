@@ -98,13 +98,15 @@ def init_demo():
     for a in range(4):
         title = 'Class A: Week ' + str(a + 1)
         question = 'This is a demo survey. Choose any answer.'
-        db.session.add(Survey(title, question, datetime.date.today(), datetime.date.today(), sadmin_id, sgroup_id_a))
+        db.session.add(
+            Survey(title, question, datetime.date.today(), datetime.date.today() + datetime.timedelta(days=2), sadmin_id, sgroup_id_a))
 
     # for class B
     for a in range(6):
         title = 'Class B: Week ' + str(a + 1)
         question = 'This is a demo survey. Choose any answer.'
-        db.session.add(Survey(title, question, datetime.date.today(), datetime.date.today(), sadmin_id, sgroup_id_b))
+        db.session.add(
+            Survey(title, question, datetime.date.today(), datetime.date.today() + datetime.timedelta(days=2), sadmin_id, sgroup_id_b))
 
 
     # insert surveys data
