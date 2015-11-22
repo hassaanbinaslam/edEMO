@@ -1,0 +1,93 @@
+{% extends 'layouts/base.html' %}
+{% set title = 'Survey Group Result' %}
+{% block title %}{{title}}{% endblock %}
+{% block scripts %}
+{{super()}}
+
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+
+      google.load('visualization', '1', {packages:['corechart']});
+      google.setOnLoadCallback(drawChart);
+
+        var survey_titles = []
+        survey_titles[0] = 'Emotional Scale'
+        {% for name in survey_group_data.get('names') %}
+        survey_titles.push('{{name}}')
+        {% endfor %}
+
+        var data_1 = ['1']
+        {% for data in survey_group_data.get('1') %}
+        data_1.push({{data}})
+        {% endfor %}
+
+        var data_2 = ['2']
+        {% for data in survey_group_data.get('2') %}
+        data_2.push({{data}})
+        {% endfor %}
+
+        var data_3 = ['3']
+        {% for data in survey_group_data.get('3') %}
+        data_3.push({{data}})
+        {% endfor %}
+
+        var data_4 = ['4']
+        {% for data in survey_group_data.get('4') %}
+        data_4.push({{data}})
+        {% endfor %}
+
+        var data_5 = ['5']
+        {% for data in survey_group_data.get('5') %}
+        data_5.push({{data}})
+        {% endfor %}
+
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+        survey_titles,
+        data_1,
+        data_2,
+        data_3,
+        data_4,
+        data_5,
+      ]);
+
+        var options = {
+        title: 'Survey Group Title: {{survey_group.name}}',
+        legend: { position: 'top', maxLines: 2},
+        bar: { groupWidth: '70%' },
+        isStacked: true,
+        chartArea: {width: '70%'},
+        hAxis: {title: "Emotional Scale"}
+      };
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('columnchart_material'));
+
+        chart.draw(data, options);
+      }
+
+
+
+</script>
+{% endblock %}
+{% block content %}
+
+<div class="container">
+    <center>
+        <div class="page-header">
+            <h1>Survey Group Results</h1>
+        </div>
+        <div id="columnchart_material" style="width:630; height:350"></div>
+        <table class="table " style="width:630;">
+            <tr align="center">
+                <td><img src="/static/img/face1.gif" width="60" height="60"></td>
+                <td><img src="/static/img/face2.gif" width="60" height="60"></td>
+                <td><img src="/static/img/face3.gif" width="60" height="60"></td>
+                <td><img src="/static/img/face4.gif" width="60" height="60"></td>
+                <td><img src="/static/img/face5.gif" width="60" height="60"></td>
+            </tr>
+        </table>
+    </center>
+</div>
+
+{% endblock %}

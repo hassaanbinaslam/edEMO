@@ -1,0 +1,60 @@
+{% extends 'layouts/base.html' %}
+{% set title = 'Survey Result' %}
+{% block title %}{{title}}{% endblock %}
+{% block scripts %}
+{{super()}}
+
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+
+      google.load('visualization', '1', {'packages':['bar']});
+      google.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+        ['Emotional Scale', 'Count'],
+          ['1', {{survey_data['1']}} ],
+          ['2', {{survey_data['2']}} ],
+          ['3', {{survey_data['3']}} ],
+          ['4', {{survey_data['4']}} ],
+          ['5', {{survey_data['5']}} ],
+        ]);
+
+        var options = {
+          chart: {
+            title: 'Survey Title: {{survey.title}}'
+          },
+          legend: { position: "none" }
+        };
+
+        var chart = new google.charts.Bar(document.getElementById('columnchart_material'));
+
+        chart.draw(data, options);
+      }
+
+
+
+
+</script>
+{% endblock %}
+{% block content %}
+
+<div class="container">
+    <center>
+        <div class="page-header">
+            <h1>Survey Results</h1>
+        </div>
+        <div id="columnchart_material" style="width:500; height:350"></div>
+        <table class="table " style="width:500;">
+            <tr align="center">
+                <td><img src="/static/img/face1.gif" width="60" height="60"></td>
+                <td><img src="/static/img/face2.gif" width="60" height="60"></td>
+                <td><img src="/static/img/face3.gif" width="60" height="60"></td>
+                <td><img src="/static/img/face4.gif" width="60" height="60"></td>
+                <td><img src="/static/img/face5.gif" width="60" height="60"></td>
+            </tr>
+        </table>
+    </center>
+</div>
+
+{% endblock %}

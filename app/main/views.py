@@ -4,6 +4,7 @@ from . import main
 from .forms import SurveyGroupCreationForm, SurveyAddForm, SurveyForm
 from ..models import UserRole, User, SurveyGroup, SurveyGroupMember, Survey, SurveyData
 from .. import db
+import datetime
 
 
 @main.route('/')
@@ -14,17 +15,16 @@ def home():
         survey_groups = SurveyGroupMember.query.filter(SurveyGroupMember.email == current_user.email).subquery()
         # get surveys user has already taken
         surveys_taken = SurveyData.query.filter(SurveyData.user_id == current_user.id).all()
+        # surveys id list taken by current user
         surveys_taken_list = []
         for survey in surveys_taken:
             surveys_taken_list.append(survey.survey_id)
-        # surveys id list taken by current user
-        # print surveys_taken_list
 
         # get surveys associated with survey groups
         # filter surveys that are expired
         # filter surveys user has already taken
         surveys = Survey.query.filter(Survey.survey_group_id == survey_groups.c.survey_group_id) \
-            .filter(Survey.expiry_date >= Survey.creation_date) \
+            .filter(Survey.expiry_date >= datetime.date.today()) \
             .filter(Survey.id.notin_(surveys_taken_list)).all()
 
         return render_template('pages/home_survey_taker.html', surveys=surveys)
@@ -181,6 +181,8 @@ def edit_role():
             user = User.query.filter_by(email=request.form['email']).first()
             if user:
                 role_list = UserRole.query.all()
+                print role_list
+                print user
                 return render_template('pages/edit_user_role.html', user=user, role_list=role_list)
             else:
                 flash('Entered email address is not registered in the system', 'error')
@@ -193,3 +195,92 @@ def edit_role():
             flash("User '" + user_email + "' role has been updated", 'success')
 
     return render_template('pages/edit_user_role.html')
+
+
+@main.route('/result/list')
+@login_required
+def result_list():
+    # check if current user is survey admin
+    if not current_user.is_survey_admin():
+        return redirect(url_for('main.home'))
+
+    # get a list of surveys
+    survey_list = Survey.query.filter_by(creator_id=current_user.id).order_by(Survey.title).all()
+
+    # get list of survey groups
+    survey_group_list = SurveyGroup.query.filter_by(creator_id=current_user.id).order_by(SurveyGroup.name).all()
+
+    return render_template('pages/result_list.html', survey_list=survey_list, survey_group_list=survey_group_list)
+
+
+@main.route('/result/survey/<int:survey_id>')
+@login_required
+def result_survey(survey_id):
+    # this page is only available to survey admin. check if current user is survey admin.
+    if not current_user.is_survey_admin():
+        return redirect(url_for('main.home'))
+
+    # check if current user is the owner of requested survey id
+    survey = Survey.query.filter(Survey.id == survey_id and Survey.creator_id == current_user.id).first()
+    if not survey:
+        return redirect(url_for('main.home'))
+
+    # get survey results
+    survey_answers = get_survey_results(survey_id)
+
+    return render_template('pages/result_survey.html', survey=survey, survey_data=survey_answers)
+
+
+@main.route('/result/survey/group/<int:group_id>')
+@login_required
+def result_survey_group(group_id):
+    # this page is only available to survey admin. check if current user is survey admin.
+    if not current_user.is_survey_admin():
+        return redirect(url_for('main.home'))
+
+    # check if current user is the owner of requested survey group id
+    survey_group = SurveyGroup.query.filter(
+        SurveyGroup.id == group_id and SurveyGroup.creator_id == current_user.id).first()
+    if not survey_group:
+        return redirect(url_for('main.home'))
+
+    survey_group_data = {
+        'names': [],
+        '1': [],
+        '2': [],
+        '3': [],
+        '4': [],
+        '5': []
+    }
+
+    # get all survey ids that are under requested survey group
+    surveys = Survey.query.filter(Survey.survey_group_id == group_id).order_by(Survey.survey_group_id).all()
+
+    for survey in surveys:
+        survey_answers = get_survey_results(survey.id)
+        survey_group_data.get('names').append(survey.title)
+        survey_group_data.get('1').append(survey_answers.get('1'))
+        survey_group_data.get('2').append(survey_answers.get('2'))
+        survey_group_data.get('3').append(survey_answers.get('3'))
+        survey_group_data.get('4').append(survey_answers.get('4'))
+        survey_group_data.get('5').append(survey_answers.get('5'))
+
+    return render_template('pages/result_survey_group.html', survey_group=survey_group,
+                           survey_group_data=survey_group_data)
+
+
+def get_survey_results(survey_id):
+    survey_data = db.session.query(SurveyData.answer, db.func.count(SurveyData.answer)).filter(
+        SurveyData.survey_id == survey_id).group_by(SurveyData.answer).order_by(SurveyData.answer).all()
+
+    survey_answers = {
+        '1': 0,
+        '2': 0,
+        '3': 0,
+        '4': 0,
+        '5': 0
+    }
+
+    for data in survey_data:
+        survey_answers[data[0]] = data[1]
+    return survey_answers
