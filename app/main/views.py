@@ -86,7 +86,6 @@ def survey_group_list():
 
     survey_groups = db.session.query(SurveyGroup).filter(SurveyGroup.creator_id == current_user.id) \
         .order_by(SurveyGroup.name).all()
-    print survey_groups
     return render_template('pages/survey-group-list.html', survey_group_list=survey_groups)
 
 
@@ -181,8 +180,6 @@ def edit_role():
             user = User.query.filter_by(email=request.form['email']).first()
             if user:
                 role_list = UserRole.query.all()
-                print role_list
-                print user
                 return render_template('pages/edit_user_role.html', user=user, role_list=role_list)
             else:
                 flash('Entered email address is not registered in the system', 'error')
