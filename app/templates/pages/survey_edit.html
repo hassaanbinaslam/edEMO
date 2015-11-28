@@ -1,0 +1,140 @@
+{% extends 'layouts/base.html' %}
+{% set title = 'Create Survey' %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+
+<div class="container">
+    <center>
+        <div class="col-lg-4 col-lg-offset-4">
+            <div class="page-header">
+                <h1>Edit Survey</h1>
+            </div>
+
+            <form method="post" class="form-horizontal">
+                <!-- Title -->
+                <input id={{form.title.id}} name={{form.title.name}} type="text" class="form-control input-lg"
+                       placeholder="Title" required autofocus value="{{survey_data.title}}">
+
+                <div class="has-error">
+                    {% for error in form.title.errors %}
+                    <span class="help-block">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <!-- Question -->
+            <textarea id={{form.question.id}} name={{form.question.name}} type="text" class="form-control input-lg"
+                      rows="3" placeholder="Question?" required>{{survey_data.question}}</textarea>
+
+                <div class="has-error">
+                    {% for error in form.question.errors %}
+                    <span class="help-block">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <!-- Creation Date -->
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon1">Creation Date</span>
+                    <input id={{form.creation_date.id}} name={{form.creation_date.name}} type="date"
+                           class="form-control input-lg" readonly aria-describedby="basic-addon1"
+                           value={{survey_data.creation_date}}>
+                </div>
+
+                <div class="has-error">
+                    {% for error in form.creation_date.errors %}
+                    <span class="help-block">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <!-- Expiry Date -->
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon2" style="padding-right:27px">Expiry Date</span>
+                    <input id={{form.expiry_date.id}} name={{form.expiry_date.name}} type="date"
+                           class="form-control input-lg" aria-describedby="basic-addon2" required
+                           min={{form.data.expiry_date_}} value="{{survey_data.expiry_date}}">
+                </div>
+
+                <div class="has-error">
+                    {% for error in form.expiry_date.errors %}
+                    <span class="help-block">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <!-- Survey Group -->
+                <div class="input-group">
+                    <span class="input-group-addon" id="basic-addon3">Survey Group</span>
+
+                    <select id="{{form.survey_group_id.id}}" name="{{form.survey_group_id.name}}"
+                            class="form-control input-lg disabled"
+                            aria-describedby="basic-addon3" required readonly>
+                        <option value="{{survey_group_data.id}}">{{survey_group_data.name}}</option>
+                    </select>
+                </div>
+
+                <div class="has-error">
+                    {% for error in form.survey_group_id.errors %}
+                    <span class="help-block">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div style="padding-top: 10px;">
+                    <button type="submit" class="btn btn-lg btn-default btn-block">Submit</button>
+                </div>
+
+                <!-- Display Alerts :Start -->
+                {% include 'layouts/alerts.html'%}
+                <!-- Display Alerts :End -->
+            </form>
+        </div>
+    </center>
+</div>
+
+<!-- Sample survey preview -->
+
+<div class="container" style="padding-bottom: 40px;">
+    <hr>
+    <center>
+        <div class="alert alert-info" role="alert" style="width:40%;">
+            <strong>Given below is the preview of a sample survey</strong></div>
+
+        <h1>Survey Title Here</h1>
+        <table class="table " style="width:40%;">
+            <tbody>
+            <tr>
+                <td colspan="3" style="text-align:center">Creation Date</td>
+                <td colspan="2">{{ form.data.creation_date }}</td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align:center">Expiry Date</td>
+                <td colspan="2">{{ form.data.creation_date }}</td>
+            </tr>
+            <tr>
+                <td colspan="5" style="text-align:left">
+                    <strong>Question:</strong>
+                    <br \>
+
+                    <p>Please choose the face which most represents your feelings to the statement: I am confident that
+                        I will complete the project, and I am following my proposed project timeline.
+                    </p>
+                </td>
+            </tr>
+            <tr align="center">
+                <td><img src="/static/img/face1.gif" width="60" height="60"></td>
+                <td><img src="/static/img/face2.gif" width="60" height="60"></td>
+                <td><img src="/static/img/face3.gif" width="60" height="60"></td>
+                <td><img src="/static/img/face4.gif" width="60" height="60"></td>
+                <td><img src="/static/img/face5.gif" width="60" height="60"></td>
+            </tr>
+            <tr align="center">
+                <td><input type="radio" name="answer" id="answer-0" value="1"></td>
+                <td><input type="radio" name="answer" id="answer-1" value="2"></td>
+                <td><input type="radio" name="answer" id="answer-2" value="3"></td>
+                <td><input type="radio" name="answer" id="answer-3" value="4"></td>
+                <td><input type="radio" name="answer" id="answer-4" value="5"></td>
+            </tr>
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-default">Save</button>
+    </center>
+</div>
+
+{% endblock %}

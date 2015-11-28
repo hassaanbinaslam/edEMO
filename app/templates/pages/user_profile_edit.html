@@ -1,0 +1,53 @@
+{% extends 'layouts/base.html' %}
+{% set title = 'User Profile Edit' %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+
+<form method="post" class="form-horizontal">
+    <center>
+        <div class="col-lg-4 col-lg-offset-4">
+            <div class="page-header">
+                <h1>{{title}}</h1>
+            </div>
+
+            <!-- User Name -->
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon">Name</span>
+                <input id="{{form.name.id}}" name="{{form.name.name}}" type="text" class="form-control input-lg"
+                       value="{{user.name}}">
+            </div>
+            <div class="has-error">
+                {% for error in form.name.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- User Email -->
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" style="padding-right:19px">Email</span>
+                <input type="text" class="form-control input-lg" value="{{user.email}}" disabled>
+            </div>
+
+            <!-- User Bio -->
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" style="padding-right:38px">Bio</span>
+                <textarea id="{{form.bio.id}}" name="{{form.bio.name}}" class="form-control" style="height: 100px">{{user.bio if user.bio is not none}}</textarea>
+            </div>
+            <div class="has-error">
+                {% for error in form.bio.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <hr>
+            <div>
+                <button type="submit" class="btn btn-lg btn-default btn-block">Update</button>
+            </div>
+
+            <!-- Display Alerts :Start -->
+            {% include 'layouts/alerts.html'%}
+            <!-- Display Alerts :End -->
+        </div>
+    </center>
+</form>
+
+{% endblock %}

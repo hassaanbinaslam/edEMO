@@ -1,5 +1,5 @@
 {% extends 'layouts/base.html' %}
-{% set title = 'Survey' %}
+{% set title = 'Survey Preview' %}
 {% block title %}{{title}}{% endblock %}
 {% block content %}
 
@@ -43,14 +43,24 @@
                 </tr>
                 </tbody>
             </table>
-            <div class="form-group has-error">
-                {% for error in form.answer.errors %}
-                <span class="help-block">{{ error }}</span>
-                {% endfor %}
-            </div>
-            <button type="submit" class="btn btn-default">Save</button>
+            <button type="button" class="btn btn-default">Save</button>
         </center>
     </form>
+</div>
+
+
+<div class="container">
+    <hr>
+    <center>
+        <div style="width:40%">
+        <div class="alert alert-info" role="alert"><strong>This is the preview of survey. If you want you could also
+            choose to</strong></div>
+        <div>
+            <a href="{{url_for('main.survey_edit', survey_id=survey_data.id)}}" class="btn btn-lg btn-default">Edit survey</a>
+            <a href="{{url_for('main.result_survey', survey_id=survey_data.id)}}" class="btn btn-lg btn-default">View survey results</a>
+        </div>
+            </div>
+    </center>
 </div>
 
 {% endblock %}

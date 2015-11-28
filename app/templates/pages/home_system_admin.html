@@ -1,5 +1,4 @@
 {% extends 'layouts/base.html' %}
-{% from 'forms/common.html' import edit_field %}
 {% set title = 'System Admin Home' %}
 {% block title %}{{title}}{% endblock %}
 {% block content %}
@@ -10,7 +9,7 @@
             <h1>Choose an Action</h1>
 
             <div class="list-group">
-                <a href="{{url_for('main.edit_role')}}" class="list-group-item">
+                <a href="{{url_for('main.user_role_edit')}}" class="list-group-item">
                     <h3>Edit User Role</h3>
                 </a>
             </div>

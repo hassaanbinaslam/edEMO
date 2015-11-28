@@ -5,21 +5,10 @@ from ..models import SurveyGroup
 import datetime, re
 
 
-class UserRegistrationForm(Form):
-    name = StringField('Full Name', [Length(min=4, max=255)])
-    email = StringField('Email Address', [Email(), Length(max=255)])
-    bio = TextAreaField('Bio', [Length(max=500)])
-    role_id = SelectField('User Role')  # user roles drop-down will be populated at runtime from controller
-
-
 class SurveyGroupCreationForm(Form):
     name = StringField('Survey Group Name', [DataRequired(), Length(min=4, max=255)])
     description = TextAreaField('Survey Group Description', [Length(max=500)])
     members = TextAreaField('Survey Group Members', [DataRequired()])
-
-    def validate_name(self, field):
-        if SurveyGroup.query.filter_by(name=field.data).first():
-            raise ValidationError('Survey group with same name already exists.')
 
     def validate_members_email_list(self):
         """ validate mail addresses entered by user. return two lists: [good mail addresses, bad mail addresses] """
@@ -56,6 +45,11 @@ class SurveyAddForm(Form):
 class SurveyForm(Form):
     answer = RadioField("", choices=[("1", "1"), ("2", "2"), ("3", "3"), ("4", "4"), ("5", "5")])
 
+
 class EditUserRoleForm(Form):
     user_role = SelectField('User Role', [DataRequired()])
 
+
+class UserProfileEditForm(Form):
+    name = StringField('Full Name', [Length(min=4, max=255)])
+    bio = TextAreaField('Bio', [Length(max=500)])

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>URL Map</title>
+    <style>
+        table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        }
+        th, td {
+        padding: 5px;
+        text-align: left;
+        }
+    </style>
+</head>
+<body>
+<table border="1">
+    <thead>
+    <tr>
+        <th>Page URL</th>
+        <th>*Available to</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>/</td>
+        <td>All</td>
+        <td>User Home page</td>
+    </tr>
+    <tr>
+        <td>/login</td>
+        <td>All</td>
+        <td>User Login page</td>
+    </tr>
+    <tr>
+        <td>/logout</td>
+        <td>All</td>
+        <td>User Logout page</td>
+    </tr>
+    <tr>
+        <td>/reset</td>
+        <td>All</td>
+        <td>User password reset page</td>
+    </tr>
+    <tr bgcolor="skyblue">
+        <td>/user/profile</td>
+        <td>All</td>
+        <td>User profile page</td>
+    </tr>
+    <tr bgcolor="skyblue">
+        <td>/user/profile/edit</td>
+        <td>All</td>
+        <td>User profile edit page</td>
+    </tr>
+    <tr>
+        <td>/register</td>
+        <td>New User</td>
+        <td>User registration page</td>
+    </tr>
+    <tr>
+        <td>/confirm</td>
+        <td>New User</td>
+        <td>User account confirmation page</td>
+    </tr>
+    <tr>
+        <td>/unconfirm</td>
+        <td>New User</td>
+        <td>User account not confirmed page</td>
+    </tr>
+    <tr>
+        <td>/survey/group/add</td>
+        <td>Survey Admin</td>
+        <td>Create a new survey group</td>
+    </tr>
+    <tr>
+        <td>/survey/group/list</td>
+        <td>Survey Admin</td>
+        <td>List all created survey groups</td>
+    </tr>
+    <tr bgcolor="skyblue">
+        <td>/survey/group/view/&lt;int:group_id&gt;</td>
+        <td>Survey Admin</td>
+        <td>View created survey group</td>
+    </tr>
+    <tr bgcolor="skyblue">
+        <td>/survey/group/edit/&lt;int:group_id&gt;</td>
+        <td>Survey Admin</td>
+        <td>Edit created survey group</td>
+    </tr>
+    <tr>
+        <td>/survey/add</td>
+        <td>Survey Admin</td>
+        <td>Create a new survey</td>
+    </tr>
+    <tr bgcolor="skyblue">
+        <td>/survey/list</td>
+        <td>Survey Admin</td>
+        <td>List all created surveys</td>
+    </tr>
+    <tr bgcolor="skyblue">
+        <td>/survey/view/&lt;int:survey_id&gt;</td>
+        <td>Survey Admin</td>
+        <td>Preview created survey</td>
+    </tr>
+    <tr bgcolor="skyblue">
+        <td>/survey/edit/&lt;int:survey_id&gt;</td>
+        <td>Survey Admin</td>
+        <td>Edit created survey</td>
+    </tr>
+    <tr>
+        <td>/result/list</td>
+        <td>Survey Admin</td>
+        <td>List all available survey and survey group results</td>
+    </tr>
+    <tr>
+        <td>/result/survey/&lt;int:survey_id&gt;</td>
+        <td>Survey Admin</td>
+        <td>Display survey result</td>
+    </tr>
+    <tr>
+        <td>/result/survey/group/&lt;int:group_id&gt;</td>
+        <td>Survey Admin</td>
+        <td>Display survey group result</td>
+    </tr>
+    <tr>
+        <td>/survey/&lt;int:survey_id&gt;</td>
+        <td>Survey Taker</td>
+        <td>Take survey</td>
+    </tr>
+    <tr>
+        <td>/user/role/edit</td>
+        <td>System Admin</td>
+        <td>Edit other user role</td>
+    </tr>
+    </tbody>
+</table>
+<span><b>*Available Roles: </b>Survey Taker, Survey Admin, System Admin</span>
+</body>
+</html>

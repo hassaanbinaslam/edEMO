@@ -1,0 +1,28 @@
+{% extends 'layouts/base.html' %}
+{% set title = 'Survey List' %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+
+<div class="container">
+    <center>
+        <div class="col-lg-4 col-lg-offset-4">
+            <div class="page-header">
+                <h2>List of created surveys</h2>
+            </div>
+
+            {% if survey_list %}
+            <div class="list-group">
+                {% for survey in survey_list %}
+                <a class="list-group-item" href="{{url_for('main.survey_view', survey_id=survey.id)}}">
+                    {{survey.title}}
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="alert alert-info" role="alert"><strong>You have not created any survey yet.</strong></div>
+            {% endif %}
+        </div>
+    </center>
+</div>
+
+{% endblock %}

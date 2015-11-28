@@ -1,0 +1,68 @@
+{% extends 'layouts/base.html' %}
+{% set title = 'Edit Survey Group' %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+
+<form method="post" class="form-horizontal">
+    <center>
+        <div class="col-lg-4 col-lg-offset-4">
+            <div class="page-header">
+                <h1>{{title}}</h1>
+            </div>
+
+            <!-- Survey Group Name -->
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" style="padding-right:72px">Title</span>
+                <input id={{form.name.id}} name={{form.name.name}} type="text" class="form-control input-lg"
+                       value="{{form.name.data if form.name.data is not none else survey_group_data.name}}"
+                       placeholder="Survey group name">
+            </div>
+
+            <div class="has-error">
+                {% for error in form.name.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Survey Group Description -->
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon">Description</span>
+                <input id={{form.description.id}} name={{form.description.name}} type="text"
+                       class="form-control input-lg"
+                       value="{{form.description.data if form.description.data is not none else survey_group_data.description}}">
+            </div>
+
+            <div class="has-error">
+                {% for error in form.description.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Survey Group Members -->
+            <div class="input-group input-group-lg">
+                <span class="input-group-addon" style="padding-right:31px">Members</span>
+                <textarea id={{form.members.id}} name={{form.members.name}} class="form-control"
+                          style="height: 150px">{{form.members.data if form.members.data is not none else survey_group_members}}</textarea>
+            </div>
+
+            <div class="has-error">
+                {% for error in form.members.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <hr>
+
+            <div>
+                <button type="submit" class="btn btn-lg btn-default btn-block">Update</button>
+            </div>
+
+            <!-- Display Alerts :Start -->
+            {% include 'layouts/alerts.html'%}
+            <!-- Display Alerts :End -->
+
+        </div>
+    </center>
+</form>
+
+{% endblock %}

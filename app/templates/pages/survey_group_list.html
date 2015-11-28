@@ -13,7 +13,7 @@
             {% if survey_group_list %}
             <div class="list-group">
                 {% for survey_group in survey_group_list %}
-                <a class="list-group-item">
+                <a class="list-group-item" href="{{url_for('main.survey_group_view', group_id=survey_group.id)}}">
                     {{survey_group.name}}
                 </a>
                 {% endfor %}

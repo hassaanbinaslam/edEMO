@@ -1,0 +1,42 @@
+{% extends 'layouts/base.html' %}
+{% set title = 'Survey Group Preview' %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+
+<div>
+    <center>
+        <div class="col-lg-4 col-lg-offset-4">
+            <div class="page-header">
+                <h1>{{title}}</h1>
+            </div>
+
+            <!-- Survey Group Name -->
+            <div class="input-group input-group-lg" align="left">
+                <span class="input-group-addon" style="padding-right:72px">Title</span>
+                <span class="form-control">{{survey_group_data.name}}</span>
+            </div>
+
+            <!-- Survey Group Description -->
+            <div class="input-group input-group-lg" align="left">
+                <span class="input-group-addon">Description</span>
+                <span class="form-control">{{survey_group_data.description}}</span>
+            </div>
+
+            <!-- Survey Group Members -->
+            <div class="input-group input-group-lg" align="left">
+                <span class="input-group-addon" style="padding-right:31px">Members</span>
+                <span class="form-control" style="height: 150px">{{survey_group_members}}</span>
+            </div>
+            <hr>
+            <div>
+                <a href="{{url_for('main.survey_group_edit', group_id=survey_group_data.id)}}"
+                   class="btn btn-lg btn-default" role="button">Edit group</a>
+                <a href="{{url_for('main.result_survey_group', group_id=survey_group_data.id)}}"
+                   class="btn btn-lg btn-default" role="button">View results</a>
+            </div>
+
+        </div>
+    </center>
+</div>
+
+{% endblock %}

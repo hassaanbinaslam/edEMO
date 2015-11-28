@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request, flash
 from flask.ext.login import login_required, current_user
 from . import main
-from .forms import SurveyGroupCreationForm, SurveyAddForm, SurveyForm
+from .forms import SurveyGroupCreationForm, SurveyAddForm, SurveyForm, UserProfileEditForm
 from ..models import UserRole, User, SurveyGroup, SurveyGroupMember, Survey, SurveyData
 from .. import db
 import datetime
@@ -37,7 +37,7 @@ def home():
 
 @main.route('/profile')
 def profile():
-    return render_template('pages/view-profile.html')
+    return render_template('pages/view_profile.html')
 
 
 @main.route('/survey/group/add', methods=['GET', 'POST'])
@@ -60,7 +60,7 @@ def survey_group_add():
                 + '\n'.join(validated_mail_lists[1]),
                 'error')
             form.members.data = ", ".join(validated_mail_lists[0])
-            return render_template('pages/survey-group-add.html', form=form)
+            return render_template('pages/survey_group_add.html', form=form)
 
         survey_group = SurveyGroup()
         form.populate_obj(survey_group)
@@ -74,7 +74,7 @@ def survey_group_add():
         # Success. Redirect user to full survey group list.
         return redirect(url_for('main.home'))
     # Load the page. If page was submitted and contain errors then load it with errors.
-    return render_template('pages/survey-group-add.html', form=form)
+    return render_template('pages/survey_group_add.html', form=form)
 
 
 @main.route('/survey/group/list')
@@ -86,7 +86,7 @@ def survey_group_list():
 
     survey_groups = db.session.query(SurveyGroup).filter(SurveyGroup.creator_id == current_user.id) \
         .order_by(SurveyGroup.name).all()
-    return render_template('pages/survey-group-list.html', survey_group_list=survey_groups)
+    return render_template('pages/survey_group_list.html', survey_group_list=survey_groups)
 
 
 @main.route('/survey/add', methods=['GET', 'POST'])
@@ -116,7 +116,7 @@ def survey_add():
         flash("Survey '" + new_survey.title + "' has been created.", 'success')
         return redirect(url_for('main.home'))
     # Load the page. If page was submitted and contain errors then load it with errors.
-    return render_template('pages/survey-add.html', form=form, survey_group_list=survey_group_list)
+    return render_template('pages/survey_add.html', form=form, survey_group_list=survey_group_list)
 
 
 @main.route('/survey/<int:survey_id>', methods=['GET', 'POST'])
@@ -158,9 +158,9 @@ def survey(survey_id):
     return render_template('pages/survey.html', form=form, survey_data=requested_survey)
 
 
-@main.route('/edit-user-role', methods=['GET', 'POST'])
+@main.route('/user/role/edit', methods=['GET', 'POST'])
 @login_required
-def edit_role():
+def user_role_edit():
     """
     Purpose: From this page system admin users can edit other user roles.
     Permission: This page is available to SYSTEM_ADMIN users only.
@@ -264,6 +264,174 @@ def result_survey_group(group_id):
 
     return render_template('pages/result_survey_group.html', survey_group=survey_group,
                            survey_group_data=survey_group_data)
+
+
+@main.route('/survey/list')
+@login_required
+def survey_list():
+    # this page is only available to survey admin. check if current user is survey admin.
+    if not current_user.is_survey_admin():
+        return redirect(url_for('main.home'))
+
+    # get all surveys created by current user
+    survey_list = Survey.query.filter_by(creator_id=current_user.id).add_columns(Survey.id, Survey.title).order_by(
+        Survey.title).all()
+
+    return render_template('pages/survey_list.html', survey_list=survey_list)
+
+
+@main.route('/survey/view/<int:survey_id>')
+@login_required
+def survey_view(survey_id):
+    # this page is only available to survey admin. check if current user is survey admin.
+    if not current_user.is_survey_admin():
+        return redirect(url_for('main.home'))
+
+    # check if requested survey exists
+    survey = Survey.query.filter_by(id=survey_id).first()
+    if not survey:
+        return redirect(url_for('main.home'))
+
+    # check if current user is the owner of requested survey
+    if not survey.creator_id == current_user.id:
+        return redirect(url_for('main.home'))
+
+    return render_template('pages/survey_view.html', survey_data=survey)
+
+
+@main.route('/survey/edit/<int:survey_id>', methods=['GET', 'POST'])
+@login_required
+def survey_edit(survey_id):
+    # this page is only available to survey admin. check if current user is survey admin.
+    if not current_user.is_survey_admin():
+        return redirect(url_for('main.home'))
+
+    # check if requested survey exists
+    survey = Survey.query.filter_by(id=survey_id).first()
+    if not survey:
+        return redirect(url_for('main.home'))
+
+    # check if current user is the owner of requested survey
+    if not survey.creator_id == current_user.id:
+        return redirect(url_for('main.home'))
+
+    form = SurveyAddForm(request.form)
+    survey_group_data = SurveyGroup.query.filter_by(id=survey.survey_group_id).first()
+    form.survey_group_id.choices = [(str(survey_group_data.id), survey_group_data.name)]
+
+    if request.method == 'POST' and form.validate():
+        # only survey title, question and expiry date could be changed
+        survey.title = form.title.data
+        survey.question = form.question.data
+        survey.expiry_date = form.expiry_date.data
+        db.session.add(survey)
+        db.session.commit()
+        # Success. Redirect user to home page.
+        flash("Survey '" + survey.title + "' has been updated.", 'success')
+        return redirect(url_for('main.home'))
+
+    return render_template('pages/survey_edit.html', form=form, survey_data=survey, survey_group_data=survey_group_data)
+
+
+@main.route('/survey/group/view/<int:group_id>')
+@login_required
+def survey_group_view(group_id):
+    # this page is only available to survey admin. check if current user is survey admin.
+    if not current_user.is_survey_admin():
+        return redirect(url_for('main.home'))
+
+    # check if requested survey group exists
+    survey_group = SurveyGroup.query.filter_by(id=group_id).first()
+    if not survey_group:
+        return redirect(url_for('main.home'))
+
+    # check if current user is the owner of requested survey
+    if not survey_group.creator_id == current_user.id:
+        return redirect(url_for('main.home'))
+
+    survey_group_members = SurveyGroupMember.query.filter(
+        SurveyGroupMember.survey_group_id == survey_group.id).order_by(SurveyGroupMember.email).all()
+
+    survey_group_members_list = []
+    for member in survey_group_members:
+        survey_group_members_list.append(member.email)
+
+    return render_template('pages/survey_group_view.html', survey_group_data=survey_group,
+                           survey_group_members=", ".join(survey_group_members_list))
+
+
+@main.route('/survey/group/edit/<int:group_id>', methods=['GET', 'POST'])
+@login_required
+def survey_group_edit(group_id):
+    # this page is only available to survey admin. check if current user is survey admin.
+    if not current_user.is_survey_admin():
+        return redirect(url_for('main.home'))
+
+    # check if requested survey group exists
+    survey_group = SurveyGroup.query.filter_by(id=group_id).first()
+    if not survey_group:
+        return redirect(url_for('main.home'))
+
+    # check if current user is the owner of requested survey group
+    if not survey_group.creator_id == current_user.id:
+        return redirect(url_for('main.home'))
+
+    form = SurveyGroupCreationForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+        validated_mail_lists = form.validate_members_email_list()  # return [good list, bad list]
+
+        # check if there is no invalid email address received from user
+        if len(validated_mail_lists[1]) > 0:
+            flash(
+                "These mail address are not valid and are removed from the list. Please check and submit the form again: "
+                + '\n'.join(validated_mail_lists[1]),
+                'error')
+            form.members.data = ", ".join(validated_mail_lists[0])
+            return render_template('pages/survey_group_edit.html', form=form)
+
+        survey_group.name = form.name.data
+        survey_group.description = form.description.data
+        db.session.add(survey_group)
+
+        # delete all previous members attached to survey group
+        SurveyGroupMember.query.filter(SurveyGroupMember.survey_group_id == survey_group.id).delete()
+        for member in validated_mail_lists[0]:
+            db.session.add(SurveyGroupMember(survey_group.id, member))
+
+        # Success. Redirect user to full survey group list.
+        flash("Survey group '" + str(survey_group.name) + "' has been updated.", 'success')
+        return redirect(url_for('main.home'))
+
+    survey_group_members = SurveyGroupMember.query.filter(SurveyGroupMember.survey_group_id == group_id).all()
+    survey_group_members_list = []
+    for member in survey_group_members:
+        survey_group_members_list.append(member.email)
+
+    return render_template('pages/survey_group_edit.html', form=form, survey_group_data=survey_group,
+                           survey_group_members=", ".join(survey_group_members_list))
+
+
+@main.route('/user/profile')
+@login_required
+def user_profile():
+    return render_template('pages/user_profile.html', user=current_user)
+
+
+@main.route('/user/profile/edit', methods=['GET', 'POST'])
+@login_required
+def user_profile_edit():
+    form = UserProfileEditForm(request.form)
+    if request.method == 'POST' and form.validate():
+
+        current_user.name = form.name.data
+        current_user.bio = form.bio.data
+        db.session.add(current_user)
+
+        flash('Your profile has been updated.', 'success')
+        return redirect(url_for('main.home'))
+
+    return render_template('pages/user_profile_edit.html', user=current_user, form=form)
 
 
 def get_survey_results(survey_id):
