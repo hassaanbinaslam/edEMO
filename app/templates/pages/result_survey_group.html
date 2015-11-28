@@ -68,6 +68,11 @@
 
 
 
+
+
+
+
+
 </script>
 {% endblock %}
 {% block content %}
@@ -77,8 +82,15 @@
         <div class="page-header">
             <h1>Survey Group Results</h1>
         </div>
-        <div id="columnchart_material" style="width:630; height:350"></div>
-        <table class="table " style="width:630;">
+        <!-- If survey group contains any surveys then display their results otherwise display message that group does not contain any surveys. -->
+        {% if not survey_group_data['names'] %}
+        <div class="col-lg-4 col-lg-offset-4">
+            <div class="alert alert-info" role="alert"><strong>This survey group does not contain any survey.</strong>
+            </div>
+        </div>
+        {% else %}
+        <div id="columnchart_material" style="width:720; height:350"></div>
+        <table class="table " style="width:500;">
             <tr align="center">
                 <td><img src="/static/img/face1.gif" width="60" height="60"></td>
                 <td><img src="/static/img/face2.gif" width="60" height="60"></td>
@@ -87,6 +99,7 @@
                 <td><img src="/static/img/face5.gif" width="60" height="60"></td>
             </tr>
         </table>
+        {% endif %}
     </center>
 </div>
 

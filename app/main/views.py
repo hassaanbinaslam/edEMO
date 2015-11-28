@@ -262,6 +262,7 @@ def result_survey_group(group_id):
         survey_group_data.get('4').append(survey_answers.get('4'))
         survey_group_data.get('5').append(survey_answers.get('5'))
 
+    print survey_group_data
     return render_template('pages/result_survey_group.html', survey_group=survey_group,
                            survey_group_data=survey_group_data)
 
